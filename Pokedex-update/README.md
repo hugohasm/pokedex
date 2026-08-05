@@ -2,6 +2,10 @@
   <img src="src/assets/pokebola.png" alt="Pokedex" width="120" />
 </p>
 
+<p align="center">
+  <strong>Español</strong> | <a href="README.en.md">English</a>
+</p>
+
 <h1 align="center">Pokedex React Native</h1>
 
 <p align="center">
@@ -115,7 +119,8 @@ facilita pruebas y permite cambiar la fuente de datos sin modificar pantallas.
 Pokedex-update/
 |
 |-- App.tsx                         # Contenedor principal de navegacion
-|-- README.md                       # Documentacion de la entrega
+|-- README.md                       # Documentacion en español
+|-- README.en.md                    # Documentacion en ingles
 |-- package.json                    # Scripts y dependencias
 |-- __tests__/                      # Pruebas de aplicacion, mappers y storage
 |-- __mocks__/                      # Dobles de Jest para modulos externos
