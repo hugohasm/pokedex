@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {
   Platform,
   StyleProp,
@@ -22,23 +22,21 @@ const SearchInput = ({style, onDebounce}: Props) => {
 
   useEffect(() => {
     onDebounce(debouncedValue);
-  }, [debouncedValue]);
+  }, [debouncedValue, onDebounce]);
 
   return (
-    <View
-      style={{
-        ...styles.container,
-        ...(style as any),
-      }}>
+    <View style={[styles.container, style]}>
       <View style={styles.textBackground}>
         <TextInput
-          style={{
-            ...styles.textInput,
-            top: Platform.OS === 'ios' ? 0 : 2,
-          }}
+          style={[
+            styles.textInput,
+            Platform.OS === 'android' && styles.androidInput,
+          ]}
           placeholder="Buscar pokemon"
+          accessibilityLabel="Buscar Pokemon por nombre o numero"
           autoCapitalize="none"
           autoCorrect={false}
+          returnKeyType="search"
           value={textValue}
           onChangeText={setTextValue}
         />
@@ -46,7 +44,7 @@ const SearchInput = ({style, onDebounce}: Props) => {
           name="search-outline"
           size={30}
           color="grey"
-          style={{marginLeft: 10}}
+          style={styles.searchIcon}
         />
       </View>
     </View>
@@ -77,5 +75,11 @@ const styles = StyleSheet.create({
   textInput: {
     flex: 1,
     fontSize: 18,
+  },
+  androidInput: {
+    top: 2,
+  },
+  searchIcon: {
+    marginLeft: 10,
   },
 });

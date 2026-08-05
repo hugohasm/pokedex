@@ -1,46 +1,42 @@
-import {useEffect, useRef, useState} from 'react';
-import {pokemonApi} from '../api/pokemonApi';
-import {
-  PokemonPaginatedResponse,
-  Result,
-  SimplePokemon,
-} from '../interfaces/pokemonInterface';
+import {useCallback, useEffect, useState} from 'react';
+import {SimplePokemon} from '../interfaces/pokemonInterface';
+import {pokeApiPokemonRepository} from '../repositories/PokeApiPokemonRepository';
+import {PokemonRepository} from '../repositories/PokemonRepository';
+import {mapPokemonList} from '../utils/pokemonMappers';
 
-export const usePokemonSearch = () => {
+export const usePokemonSearch = (
+  repository: PokemonRepository = pokeApiPokemonRepository,
+) => {
   const [isFetching, setIsFetching] = useState(true);
+  const [errorMessage, setErrorMessage] = useState('');
   const [simplePokemonList, setSimplePokemonList] = useState<SimplePokemon[]>(
     [],
   );
 
-  const loadPokemons = async () => {
-    const resp = await pokemonApi.get<PokemonPaginatedResponse>(
-      'https://pokeapi.co/api/v2/pokemon?limit=1200',
-    );
-    mapPokemonList(resp.data.results);
-  };
+  const loadPokemons = useCallback(async () => {
+    try {
+      setIsFetching(true);
+      setErrorMessage('');
+      const page = await repository.getPokemonPage('/pokemon?limit=2000');
 
-  const mapPokemonList = (pokemonList: Result[]) => {
-    const newPokemonList: SimplePokemon[] = pokemonList.map(({name, url}) => {
-      const urlParts = url.split('/');
-      const id = urlParts[urlParts.length - 2];
-      const picture = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${id}.png`;
-      return {
-        id,
-        picture,
-        name,
-      };
-    });
-
-    setSimplePokemonList(newPokemonList);
-    setIsFetching(false);
-  };
+      setSimplePokemonList(mapPokemonList(page.results));
+    } catch (error) {
+      setErrorMessage(
+        'No pudimos preparar la busqueda. Revisa tu conexion e intenta de nuevo.',
+      );
+    } finally {
+      setIsFetching(false);
+    }
+  }, [repository]);
 
   useEffect(() => {
     loadPokemons();
-  }, []);
+  }, [loadPokemons]);
 
   return {
     isFetching,
+    errorMessage,
     simplePokemonList,
+    loadPokemons,
   };
 };

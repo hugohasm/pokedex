@@ -1,45 +1,74 @@
 import React, {useEffect, useState, useRef} from 'react';
 import {useNavigation} from '@react-navigation/native';
+import {StackNavigationProp} from '@react-navigation/stack';
 import ImageColors from 'react-native-image-colors';
 
 import {SimplePokemon} from '../interfaces/pokemonInterface';
+import {RootStackParams} from '../navigator/navigationTypes';
 import {
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  Dimensions,
   Image,
+  useWindowDimensions,
 } from 'react-native';
 import {FadeInImage} from './FadeInImage';
-const windowWidth = Dimensions.get('window').width;
 
 interface Props {
   pokemon: SimplePokemon;
 }
 
+type PokemonNavigationProp = StackNavigationProp<RootStackParams, 'HomeScreen'>;
+
 export const PokemonCard = ({pokemon}: Props) => {
   const [bgColor, setBgColor] = useState('grey');
   const isMounted = useRef(true);
-  const navigation = useNavigation();
+  const navigation = useNavigation<PokemonNavigationProp>();
+  const {width: windowWidth} = useWindowDimensions();
+  const cardWidth = Math.min(windowWidth * 0.4, 260);
 
   useEffect(() => {
-    ImageColors.getColors(pokemon.picture, {fallback: 'grey'}).then(colors => {
-      if (!isMounted.current) return;
+    isMounted.current = true;
 
-      colors.platform === 'android'
-        ? setBgColor(colors.dominant || 'grey')
-        : setBgColor(colors.background || 'grey');
-    });
+    ImageColors.getColors(pokemon.picture, {fallback: 'grey'})
+      .then(colors => {
+        if (!isMounted.current) {
+          return;
+        }
+
+        let nextColor = 'grey';
+
+        switch (colors.platform) {
+          case 'android':
+            nextColor = colors.dominant || colors.vibrant || 'grey';
+            break;
+          case 'ios':
+            nextColor = colors.background || colors.primary;
+            break;
+          case 'web':
+            nextColor = colors.dominant || colors.vibrant || 'grey';
+            break;
+        }
+
+        setBgColor(nextColor || 'grey');
+      })
+      .catch(() => {
+        if (isMounted.current) {
+          setBgColor('grey');
+        }
+      });
 
     return () => {
       isMounted.current = false;
     };
-  }, []);
+  }, [pokemon.picture]);
 
   return (
     <TouchableOpacity
       activeOpacity={0.9}
+      accessibilityRole="button"
+      accessibilityLabel={`Ver detalle de ${pokemon.name}, numero ${pokemon.id}`}
       onPress={() =>
         navigation.navigate('PokemonScreen', {
           simplePokemon: pokemon,
@@ -49,14 +78,18 @@ export const PokemonCard = ({pokemon}: Props) => {
       <View
         style={{
           ...styles.cardContainer,
-          width: windowWidth * 0.4,
+          width: cardWidth,
           backgroundColor: bgColor,
         }}>
-        <View>
-          <Text style={{...styles.name}}>
+        <View style={styles.labelContainer}>
+          <Text
+            style={styles.name}
+            numberOfLines={1}
+            adjustsFontSizeToFit
+            minimumFontScale={0.7}>
             {pokemon.name}
-            {'\n#' + pokemon.id}
           </Text>
+          <Text style={styles.number}>#{pokemon.id}</Text>
         </View>
 
         <View style={styles.pokebolaContainer}>
@@ -77,7 +110,7 @@ const styles = StyleSheet.create({
     height: 120,
     width: 160,
     marginBottom: 25,
-    borderRadius: 10,
+    borderRadius: 8,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
@@ -89,10 +122,25 @@ const styles = StyleSheet.create({
   },
   name: {
     color: 'white',
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: 'bold',
-    top: 20,
-    left: 10,
+  },
+  number: {
+    color: 'white',
+    fontSize: 17,
+    fontWeight: 'bold',
+  },
+  labelContainer: {
+    backgroundColor: 'rgba(0, 0, 0, 0.16)',
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
+    left: 0,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    zIndex: 2,
   },
   pokebola: {
     width: 100,
@@ -102,8 +150,8 @@ const styles = StyleSheet.create({
     bottom: -25,
   },
   pokemonImage: {
-    width: 120,
-    height: 120,
+    width: 105,
+    height: 105,
     position: 'absolute',
     right: -8,
     bottom: -5,

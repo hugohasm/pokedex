@@ -1,5 +1,5 @@
 import {StackScreenProps} from '@react-navigation/stack';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Text,
   View,
@@ -8,12 +8,18 @@ import {
   Image,
   ActivityIndicator,
 } from 'react-native';
-import {RootStackParams} from '../navigator/Tab1';
+import {RootStackParams} from '../navigator/navigationTypes';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {FadeInImage} from '../components/FadeInImage';
 import {usePokemon} from '../hooks/usePokemon';
 import {PokemonDetails} from '../components/PokemonDetails';
+import {StateMessage} from '../components/StateMessage';
+import {
+  getFavoritePokemon,
+  removeFavoritePokemon,
+  saveFavoritePokemon,
+} from '../storage/favoritePokemonStorage';
 
 interface Props extends StackScreenProps<RootStackParams, 'PokemonScreen'> {}
 
@@ -21,12 +27,29 @@ export const PokemonScreen = ({navigation, route}: Props) => {
   const {simplePokemon, color} = route.params;
   const {name, id, picture} = simplePokemon;
   const {top} = useSafeAreaInsets();
+  const [isFavorite, setIsFavorite] = useState(false);
 
-  const {isLoading, pokemon} = usePokemon(id);
-  console.log(pokemon);
+  const {isLoading, errorMessage, pokemon, loadPokemon} = usePokemon(id);
+
+  useEffect(() => {
+    getFavoritePokemon().then(favoritePokemon => {
+      setIsFavorite(favoritePokemon?.id === id);
+    });
+  }, [id]);
+
+  const toggleFavorite = async () => {
+    if (isFavorite) {
+      await removeFavoritePokemon();
+      setIsFavorite(false);
+      return;
+    }
+
+    await saveFavoritePokemon(simplePokemon);
+    setIsFavorite(true);
+  };
 
   return (
-    <View style={{flex: 1}}>
+    <View style={styles.screen}>
       <View
         style={{
           ...styles.headerContainer,
@@ -35,11 +58,30 @@ export const PokemonScreen = ({navigation, route}: Props) => {
         <TouchableOpacity
           onPress={() => navigation.pop()}
           activeOpacity={0.8}
+          accessibilityRole="button"
+          accessibilityLabel="Volver al listado"
           style={{
             ...styles.backButton,
             top: top + 5,
           }}>
           <Icon name="arrow-back-outline" color="white" size={35} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={toggleFavorite}
+          activeOpacity={0.8}
+          accessibilityRole="button"
+          accessibilityLabel={
+            isFavorite ? 'Quitar Pokemon favorito' : 'Guardar Pokemon favorito'
+          }
+          style={{
+            ...styles.favoriteButton,
+            top: top + 7,
+          }}>
+          <Icon
+            name={isFavorite ? 'heart' : 'heart-outline'}
+            color="white"
+            size={34}
+          />
         </TouchableOpacity>
         <Text
           style={{
@@ -59,6 +101,13 @@ export const PokemonScreen = ({navigation, route}: Props) => {
         <View style={styles.loadingIndicator}>
           <ActivityIndicator color={color} size={50} />
         </View>
+      ) : errorMessage ? (
+        <StateMessage
+          title="No se pudo cargar"
+          message={errorMessage}
+          actionLabel="Reintentar"
+          onAction={loadPokemon}
+        />
       ) : (
         <PokemonDetails pokemon={pokemon} />
       )}
@@ -67,6 +116,9 @@ export const PokemonScreen = ({navigation, route}: Props) => {
 };
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+  },
   headerContainer: {
     height: 370,
     zIndex: 999,
@@ -77,6 +129,11 @@ const styles = StyleSheet.create({
   backButton: {
     position: 'absolute',
     left: 20,
+    top: 40,
+  },
+  favoriteButton: {
+    position: 'absolute',
+    right: 22,
     top: 40,
   },
   name: {

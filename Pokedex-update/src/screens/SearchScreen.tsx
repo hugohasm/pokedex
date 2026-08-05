@@ -1,5 +1,12 @@
-import React, {useEffect, useState} from 'react';
-import {View, Text, Platform, FlatList, Dimensions} from 'react-native';
+import React, {useCallback, useEffect, useState} from 'react';
+import {
+  View,
+  Text,
+  Platform,
+  FlatList,
+  StyleSheet,
+  useWindowDimensions,
+} from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import SearchInput from '../components/SearchInput';
 import {usePokemonSearch} from '../hooks/usePokemonSearch';
@@ -7,16 +14,25 @@ import {styles} from '../theme/appTheme';
 import {PokemonCard} from '../components/PokemonCard';
 import {Loading} from '../components/Loading';
 import {SimplePokemon} from '../interfaces/pokemonInterface';
-
-const screenWidth = Dimensions.get('window').width;
+import {StateMessage} from '../components/StateMessage';
 
 export const SearchScreen = () => {
   const {top} = useSafeAreaInsets();
-  const {isFetching, simplePokemonList} = usePokemonSearch();
+  const {width: screenWidth} = useWindowDimensions();
+  const {isFetching, errorMessage, simplePokemonList, loadPokemons} =
+    usePokemonSearch();
 
   const [pokemonFiltered, setPokemonFiltered] = useState<SimplePokemon[]>([]);
 
   const [term, setTerm] = useState('');
+  const updateTerm = useCallback((value: string) => setTerm(value.trim()), []);
+  const searchInputStyle = {
+    top: Platform.OS === 'ios' ? top : top + 30,
+    width: screenWidth - 40,
+  };
+  const titleInsets = {
+    marginTop: Platform.OS === 'ios' ? top + 60 : top + 80,
+  };
 
   useEffect(() => {
     if (term.length === 0) {
@@ -33,26 +49,28 @@ export const SearchScreen = () => {
       const pokemonById = simplePokemonList.find(poke => poke.id === term);
       setPokemonFiltered(pokemonById ? [pokemonById] : []);
     }
-  }, [term]);
+  }, [simplePokemonList, term]);
 
   if (isFetching) {
     return <Loading />;
   }
 
+  if (errorMessage) {
+    return (
+      <StateMessage
+        title="Busqueda no disponible"
+        message={errorMessage}
+        actionLabel="Reintentar"
+        onAction={loadPokemons}
+      />
+    );
+  }
+
   return (
-    <View
-      style={{
-        flex: 1,
-        marginHorizontal: 20,
-      }}>
+    <View style={localStyles.container}>
       <SearchInput
-        onDebounce={value => setTerm(value)}
-        style={{
-          position: 'absolute',
-          zIndex: 999,
-          width: screenWidth - 40,
-          top: Platform.OS === 'ios' ? top : top + 30,
-        }}
+        onDebounce={updateTerm}
+        style={[localStyles.searchInput, searchInputStyle]}
       />
       <FlatList
         data={pokemonFiltered}
@@ -61,17 +79,39 @@ export const SearchScreen = () => {
         numColumns={2}
         ListHeaderComponent={
           <Text
-            style={{
-              ...styles.title,
-              ...styles.globalMargin,
-              paddingBottom: 10,
-              marginTop: Platform.OS === 'ios' ? top + 60 : top + 80,
-            }}>
+            style={[
+              styles.title,
+              styles.globalMargin,
+              localStyles.title,
+              titleInsets,
+            ]}>
             {term}
           </Text>
         }
-        renderItem={({item, index}) => <PokemonCard pokemon={item} />}
+        ListEmptyComponent={
+          term.length > 0 ? (
+            <StateMessage
+              title="Sin resultados"
+              message="Prueba con otro nombre o numero de Pokemon."
+            />
+          ) : null
+        }
+        renderItem={({item}) => <PokemonCard pokemon={item} />}
       />
     </View>
   );
 };
+
+const localStyles = StyleSheet.create({
+  container: {
+    flex: 1,
+    marginHorizontal: 20,
+  },
+  searchInput: {
+    position: 'absolute',
+    zIndex: 999,
+  },
+  title: {
+    paddingBottom: 10,
+  },
+});
