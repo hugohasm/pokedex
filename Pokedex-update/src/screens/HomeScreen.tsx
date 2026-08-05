@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import {
   Image,
   Text,
@@ -6,6 +6,8 @@ import {
   FlatList,
   ActivityIndicator,
   StyleSheet,
+  ListRenderItemInfo,
+  Platform,
 } from 'react-native';
 import {styles} from '../theme/appTheme';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
@@ -13,6 +15,7 @@ import {usePokemonPaginate} from '../hooks/usePokemonPaginate';
 import {PokemonCard} from '../components/PokemonCard';
 import {Loading} from '../components/Loading';
 import {StateMessage} from '../components/StateMessage';
+import {SimplePokemon} from '../interfaces/pokemonInterface';
 
 export const HomeScreen = () => {
   const {top} = useSafeAreaInsets();
@@ -27,6 +30,12 @@ export const HomeScreen = () => {
     simplePokemonList,
     loadPokemons,
   } = usePokemonPaginate();
+  const renderPokemon = useCallback(
+    ({item}: ListRenderItemInfo<SimplePokemon>) => (
+      <PokemonCard pokemon={item} />
+    ),
+    [],
+  );
 
   if (isLoading) {
     return <Loading />;
@@ -64,6 +73,11 @@ export const HomeScreen = () => {
           keyExtractor={pokemon => pokemon.id}
           showsVerticalScrollIndicator={false}
           numColumns={2}
+          initialNumToRender={10}
+          maxToRenderPerBatch={10}
+          updateCellsBatchingPeriod={50}
+          windowSize={5}
+          removeClippedSubviews={Platform.OS === 'android'}
           //header
           ListHeaderComponent={
             <Text
@@ -76,7 +90,7 @@ export const HomeScreen = () => {
               Pokedex
             </Text>
           }
-          renderItem={({item}) => <PokemonCard pokemon={item} />}
+          renderItem={renderPokemon}
           //Infnite Scroll
           onEndReached={loadPokemons}
           onEndReachedThreshold={0.4}

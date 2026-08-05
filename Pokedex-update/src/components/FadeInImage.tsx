@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {
   ActivityIndicator,
   Animated,
+  Image,
   ImageStyle,
   StyleProp,
   StyleSheet,
@@ -13,15 +14,19 @@ import {useAnimation} from '../hooks/useAnimation';
 interface Props {
   uri?: string | null;
   style?: StyleProp<ImageStyle & ViewStyle>;
+  enableFade?: boolean;
 }
 
-export const FadeInImage = ({uri, style}: Props) => {
+export const FadeInImage = ({uri, style, enableFade = true}: Props) => {
   const {opacity, fadeIn} = useAnimation();
   const [isLoading, setIsLoading] = useState(true);
 
   const finishLoading = () => {
     setIsLoading(false);
-    fadeIn();
+
+    if (enableFade) {
+      fadeIn();
+    }
   };
 
   const onError = () => {
@@ -38,12 +43,19 @@ export const FadeInImage = ({uri, style}: Props) => {
         />
       ) : null}
 
-      {uri ? (
+      {uri && enableFade ? (
         <Animated.Image
           source={{uri}}
           onError={onError}
           onLoad={finishLoading}
           style={[style, {opacity}]}
+        />
+      ) : uri ? (
+        <Image
+          source={{uri}}
+          onError={onError}
+          onLoad={finishLoading}
+          style={style}
         />
       ) : null}
     </View>

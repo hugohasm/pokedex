@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   FlatList,
   StyleSheet,
   useWindowDimensions,
+  ListRenderItemInfo,
 } from 'react-native';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import SearchInput from '../components/SearchInput';
@@ -22,8 +23,6 @@ export const SearchScreen = () => {
   const {isFetching, errorMessage, simplePokemonList, loadPokemons} =
     usePokemonSearch();
 
-  const [pokemonFiltered, setPokemonFiltered] = useState<SimplePokemon[]>([]);
-
   const [term, setTerm] = useState('');
   const updateTerm = useCallback((value: string) => setTerm(value.trim()), []);
   const searchInputStyle = {
@@ -34,22 +33,26 @@ export const SearchScreen = () => {
     marginTop: Platform.OS === 'ios' ? top + 60 : top + 80,
   };
 
-  useEffect(() => {
+  const pokemonFiltered = useMemo(() => {
     if (term.length === 0) {
-      return setPokemonFiltered([]);
+      return [];
     }
 
     if (isNaN(Number(term))) {
-      setPokemonFiltered(
-        simplePokemonList.filter(poke =>
-          poke.name.toLocaleLowerCase().includes(term.toLowerCase()),
-        ),
+      return simplePokemonList.filter(poke =>
+        poke.name.toLocaleLowerCase().includes(term.toLowerCase()),
       );
-    } else {
-      const pokemonById = simplePokemonList.find(poke => poke.id === term);
-      setPokemonFiltered(pokemonById ? [pokemonById] : []);
     }
+
+    const pokemonById = simplePokemonList.find(poke => poke.id === term);
+    return pokemonById ? [pokemonById] : [];
   }, [simplePokemonList, term]);
+  const renderPokemon = useCallback(
+    ({item}: ListRenderItemInfo<SimplePokemon>) => (
+      <PokemonCard pokemon={item} />
+    ),
+    [],
+  );
 
   if (isFetching) {
     return <Loading />;
@@ -77,6 +80,11 @@ export const SearchScreen = () => {
         keyExtractor={pokemon => pokemon.id}
         showsVerticalScrollIndicator={false}
         numColumns={2}
+        initialNumToRender={10}
+        maxToRenderPerBatch={10}
+        updateCellsBatchingPeriod={50}
+        windowSize={5}
+        removeClippedSubviews={Platform.OS === 'android'}
         ListHeaderComponent={
           <Text
             style={[
@@ -96,7 +104,7 @@ export const SearchScreen = () => {
             />
           ) : null
         }
-        renderItem={({item}) => <PokemonCard pokemon={item} />}
+        renderItem={renderPokemon}
       />
     </View>
   );

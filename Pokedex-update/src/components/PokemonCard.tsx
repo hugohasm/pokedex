@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useRef} from 'react';
+import React, {memo, useEffect, useState, useRef} from 'react';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import ImageColors from 'react-native-image-colors';
@@ -21,7 +21,7 @@ interface Props {
 
 type PokemonNavigationProp = StackNavigationProp<RootStackParams, 'HomeScreen'>;
 
-export const PokemonCard = ({pokemon}: Props) => {
+const PokemonCardComponent = ({pokemon}: Props) => {
   const [bgColor, setBgColor] = useState('grey');
   const isMounted = useRef(true);
   const navigation = useNavigation<PokemonNavigationProp>();
@@ -98,11 +98,17 @@ export const PokemonCard = ({pokemon}: Props) => {
             style={styles.pokebola}
           />
         </View>
-        <FadeInImage uri={pokemon.picture} style={styles.pokemonImage} />
+        <FadeInImage
+          uri={pokemon.picture}
+          style={styles.pokemonImage}
+          enableFade={false}
+        />
       </View>
     </TouchableOpacity>
   );
 };
+
+export const PokemonCard = memo(PokemonCardComponent);
 
 const styles = StyleSheet.create({
   cardContainer: {
