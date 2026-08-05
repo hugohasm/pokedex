@@ -9,7 +9,7 @@
 RCT_EXPORT_MODULE();
 
 RCT_REMAP_METHOD(getItem,
-                 key:(NSString *)key
+                 getItemForKey:(NSString *)key
                  resolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject)
 {
@@ -18,7 +18,7 @@ RCT_REMAP_METHOD(getItem,
 }
 
 RCT_REMAP_METHOD(setItem,
-                 key:(NSString *)key
+                 setItemForKey:(NSString *)key
                  value:(NSString *)value
                  resolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject)
@@ -28,7 +28,7 @@ RCT_REMAP_METHOD(setItem,
 }
 
 RCT_REMAP_METHOD(removeItem,
-                 key:(NSString *)key
+                 removeItemForKey:(NSString *)key
                  resolver:(RCTPromiseResolveBlock)resolve
                  rejecter:(RCTPromiseRejectBlock)reject)
 {

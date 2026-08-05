@@ -50,18 +50,18 @@ also save one favorite Pokemon, which is persisted locally between sessions.
 
 ## Assessment coverage
 
-| Requirement | Implementation | Status |
-| --- | --- | --- |
-| First 20 Pokemon | Initial request with `limit=20` | Complete |
-| Name and image | Cards with name, number, and official artwork | Complete |
-| Navigation | Typed stacks from the list and search screens | Complete |
-| Detail screen | Types, abilities, stats, weight, height, experience, sprites, and moves | Complete |
-| Visual states | Loading, error, retry, and empty data | Complete |
-| Decoupled API access | Hooks, repository contract, and PokeAPI implementation | Complete |
-| Local persistence | `SharedPreferences` on Android and `NSUserDefaults` on iOS | Complete |
-| TypeScript | Typed models, routes, responses, and dependencies | Complete |
-| Documentation | Setup, architecture, decisions, evidence, and pending work | Complete |
-| Bonus | Pagination, search, cache, accessibility, linting, and tests | Complete |
+| Requirement          | Implementation                                                          | Status   |
+| -------------------- | ----------------------------------------------------------------------- | -------- |
+| First 20 Pokemon     | Initial request with `limit=20`                                         | Complete |
+| Name and image       | Cards with name, number, and official artwork                           | Complete |
+| Navigation           | Typed stacks from the list and search screens                           | Complete |
+| Detail screen        | Types, abilities, stats, weight, height, experience, sprites, and moves | Complete |
+| Visual states        | Loading, error, retry, and empty data                                   | Complete |
+| Decoupled API access | Hooks, repository contract, and PokeAPI implementation                  | Complete |
+| Local persistence    | `SharedPreferences` on Android and `NSUserDefaults` on iOS              | Complete |
+| TypeScript           | Typed models, routes, responses, and dependencies                       | Complete |
+| Documentation        | Setup, architecture, decisions, evidence, and pending work              | Complete |
+| Bonus                | Pagination, search, cache, accessibility, linting, and tests            | Complete |
 
 ## Features
 
@@ -98,15 +98,15 @@ flowchart TD
 
 ### Responsibilities
 
-| Layer | Responsibility |
-| --- | --- |
-| Screens | Compose the interface and connect navigation with state |
-| Components | Render reusable cards, details, search, and visual states |
-| Hooks | Coordinate pagination, search, caching, loading, and errors |
-| Repository | Define the data contract and isolate PokeAPI |
-| API | Configure the base URL, timeout, and HTTP client |
-| Storage | Expose persistence without coupling the UI to Android or iOS |
-| Utils | Transform external responses into simple UI models |
+| Layer      | Responsibility                                               |
+| ---------- | ------------------------------------------------------------ |
+| Screens    | Compose the interface and connect navigation with state      |
+| Components | Render reusable cards, details, search, and visual states    |
+| Hooks      | Coordinate pagination, search, caching, loading, and errors  |
+| Repository | Define the data contract and isolate PokeAPI                 |
+| API        | Configure the base URL, timeout, and HTTP client             |
+| Storage    | Expose persistence without coupling the UI to Android or iOS |
+| Utils      | Transform external responses into simple UI models           |
 
 The repository dependency can be replaced when using the hooks. This improves
 testability and allows the data source to change without modifying screens.
@@ -234,6 +234,10 @@ cd pokedex/Pokedex-update
 npm install
 ```
 
+The `postinstall` script automatically prepares legacy iOS dependencies: it fixes
+the Boost URL included in React Native 0.70 and declares the React dependency
+that `RNVectorIcons` needs when building with current Xcode versions.
+
 To prepare iOS:
 
 ```bash
@@ -274,15 +278,15 @@ Included coverage:
 
 ## Libraries
 
-| Library | Rationale |
-| --- | --- |
-| React Navigation | Tab and stack navigation with typed routes |
-| Axios | HTTP client with base URL, timeout, and typed responses |
-| React Native Vector Icons | Consistent icons for navigation and actions |
-| React Native Image Colors | Card color derived from official artwork |
-| Safe Area Context | Safe-area handling across Android and iOS |
-| React Native Screens | Native integration and navigation performance |
-| Gesture Handler | Gestures required by navigation and ScrollView |
+| Library                   | Rationale                                               |
+| ------------------------- | ------------------------------------------------------- |
+| React Navigation          | Tab and stack navigation with typed routes              |
+| Axios                     | HTTP client with base URL, timeout, and typed responses |
+| React Native Vector Icons | Consistent icons for navigation and actions             |
+| React Native Image Colors | Card color derived from official artwork                |
+| Safe Area Context         | Safe-area handling across Android and iOS               |
+| React Native Screens      | Native integration and navigation performance           |
+| Gesture Handler           | Gestures required by navigation and ScrollView          |
 
 The assessment contains two conflicting directions: one section requests no
 external libraries, while another allows justified library choices. This app
@@ -297,6 +301,12 @@ Screenshots captured on Android 13 using a Pixel 2 API 33 emulator:
 <p align="center">
   <img src="docs/screenshots/pokedex-home.png" width="280" alt="Initial Pokemon list" />
   <img src="docs/screenshots/pokedex-detail.png" width="280" alt="Bulbasaur detail" />
+</p>
+
+Build, installation, and launch verified on an iPhone 16 running iOS 18.6:
+
+<p align="center">
+  <img src="docs/screenshots/pokedex-ios-home.png" width="280" alt="Pokemon list on iOS" />
 </p>
 
 ## Trade-offs and improvements

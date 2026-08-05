@@ -51,18 +51,18 @@ sesiones.
 
 ## Cobertura del assessment
 
-| Requisito | Implementacion | Estado |
-| --- | --- | --- |
-| Primeros 20 Pokemon | Consulta inicial con `limit=20` | Completo |
-| Nombre e imagen | Tarjetas con nombre, numero e imagen oficial | Completo |
-| Navegacion | Stacks tipados desde listado y busqueda | Completo |
+| Requisito           | Implementacion                                                              | Estado   |
+| ------------------- | --------------------------------------------------------------------------- | -------- |
+| Primeros 20 Pokemon | Consulta inicial con `limit=20`                                             | Completo |
+| Nombre e imagen     | Tarjetas con nombre, numero e imagen oficial                                | Completo |
+| Navegacion          | Stacks tipados desde listado y busqueda                                     | Completo |
 | Pantalla de detalle | Tipos, habilidades, stats, peso, altura, experiencia, sprites y movimientos | Completo |
-| Estados visuales | Carga, error, reintento y datos vacios | Completo |
-| Consumo desacoplado | Hooks, contrato de repositorio e implementacion de PokeAPI | Completo |
-| Persistencia local | `SharedPreferences` en Android y `NSUserDefaults` en iOS | Completo |
-| TypeScript | Modelos, rutas, respuestas y dependencias tipadas | Completo |
-| Documentacion | Instalacion, arquitectura, decisiones, evidencia y pendientes | Completo |
-| Bonus | Paginacion, busqueda, cache, accesibilidad, lint y tests | Completo |
+| Estados visuales    | Carga, error, reintento y datos vacios                                      | Completo |
+| Consumo desacoplado | Hooks, contrato de repositorio e implementacion de PokeAPI                  | Completo |
+| Persistencia local  | `SharedPreferences` en Android y `NSUserDefaults` en iOS                    | Completo |
+| TypeScript          | Modelos, rutas, respuestas y dependencias tipadas                           | Completo |
+| Documentacion       | Instalacion, arquitectura, decisiones, evidencia y pendientes               | Completo |
+| Bonus               | Paginacion, busqueda, cache, accesibilidad, lint y tests                    | Completo |
 
 ## Funcionalidad
 
@@ -100,15 +100,15 @@ flowchart TD
 
 ### Responsabilidades
 
-| Capa | Responsabilidad |
-| --- | --- |
-| Screens | Componer la interfaz y conectar navegacion con estado |
+| Capa       | Responsabilidad                                                |
+| ---------- | -------------------------------------------------------------- |
+| Screens    | Componer la interfaz y conectar navegacion con estado          |
 | Components | Renderizar tarjetas, detalle, busqueda y estados reutilizables |
-| Hooks | Coordinar paginacion, busqueda, cache, carga y errores |
-| Repository | Definir el contrato de datos y aislar PokeAPI |
-| API | Configurar URL base, timeout y cliente HTTP |
-| Storage | Exponer persistencia sin acoplar la UI a Android o iOS |
-| Utils | Transformar respuestas externas en modelos simples de UI |
+| Hooks      | Coordinar paginacion, busqueda, cache, carga y errores         |
+| Repository | Definir el contrato de datos y aislar PokeAPI                  |
+| API        | Configurar URL base, timeout y cliente HTTP                    |
+| Storage    | Exponer persistencia sin acoplar la UI a Android o iOS         |
+| Utils      | Transformar respuestas externas en modelos simples de UI       |
 
 La dependencia del repositorio se puede sustituir al usar los hooks, lo que
 facilita pruebas y permite cambiar la fuente de datos sin modificar pantallas.
@@ -236,6 +236,10 @@ cd pokedex/Pokedex-update
 npm install
 ```
 
+El script `postinstall` prepara automaticamente las dependencias legacy de iOS:
+corrige la URL de Boost incluida en React Native 0.70 y declara la dependencia
+de React que `RNVectorIcons` necesita al compilar con versiones actuales de Xcode.
+
 Para preparar iOS:
 
 ```bash
@@ -276,15 +280,15 @@ Cobertura incluida:
 
 ## Librerias
 
-| Libreria | Justificacion |
-| --- | --- |
-| React Navigation | Navegacion mediante tabs y stacks con rutas tipadas |
-| Axios | Cliente HTTP con URL base, timeout y respuestas tipadas |
-| React Native Vector Icons | Iconos consistentes para navegacion y acciones |
-| React Native Image Colors | Color de tarjeta derivado de la imagen oficial |
-| Safe Area Context | Respeto de areas seguras en Android y iOS |
-| React Native Screens | Integracion nativa y rendimiento de navegacion |
-| Gesture Handler | Gestos requeridos por la navegacion y ScrollView |
+| Libreria                  | Justificacion                                           |
+| ------------------------- | ------------------------------------------------------- |
+| React Navigation          | Navegacion mediante tabs y stacks con rutas tipadas     |
+| Axios                     | Cliente HTTP con URL base, timeout y respuestas tipadas |
+| React Native Vector Icons | Iconos consistentes para navegacion y acciones          |
+| React Native Image Colors | Color de tarjeta derivado de la imagen oficial          |
+| Safe Area Context         | Respeto de areas seguras en Android y iOS               |
+| React Native Screens      | Integracion nativa y rendimiento de navegacion          |
+| Gesture Handler           | Gestos requeridos por la navegacion y ScrollView        |
 
 El assessment contiene dos indicaciones en tension: una seccion solicita no usar
 librerias externas y otra permite seleccionarlas si se justifican. Esta aplicacion
@@ -298,6 +302,12 @@ Capturas obtenidas en Android 13, emulador Pixel 2 API 33:
 <p align="center">
   <img src="docs/screenshots/pokedex-home.png" width="280" alt="Listado inicial de Pokemon" />
   <img src="docs/screenshots/pokedex-detail.png" width="280" alt="Detalle de Bulbasaur" />
+</p>
+
+Compilacion, instalacion y arranque verificados en iPhone 16 con iOS 18.6:
+
+<p align="center">
+  <img src="docs/screenshots/pokedex-ios-home.png" width="280" alt="Listado de Pokemon en iOS" />
 </p>
 
 ## Trade-offs y mejoras
